@@ -15,7 +15,7 @@ public:
 private:
     vector<RectangleShape> tiles;
     vector<RectangleShape> wallShapes;
-    vector<PhysicsRectangle> walls;
+    PhysicsRectangle top_wall, bottom_wall, left_wall, right_wall;;
     int width;
     int height;
     int cellSize;

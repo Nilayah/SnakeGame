@@ -16,10 +16,11 @@ int main()
 	int cell_size = 20;
 
 	RenderWindow window(VideoMode(800, 600), "Snake Game"); //window size
-	World world(Vector2f(0, 1)); //gravity
+	World world(Vector2f(0, 0));
 
 	Background background(800, 600, cell_size, world); //initialize background
-	Snake snake(cell_size, Vector2f(400, 300)); //initialize snake
+	Snake snake(cell_size, Vector2f(400 + cell_size / 2, 300 + cell_size / 2), world); //initialize snake
+	snake.HandleCollision(window);
 
 	Clock clock;
 	Time lastTime(clock.getElapsedTime());
@@ -32,6 +33,7 @@ int main()
 		Time deltaTime(currentTime - lastTime);
 		int deltaTimeMS(deltaTime.asMilliseconds());
 		if (deltaTimeMS > 0) {
+			world.UpdatePhysics(deltaTimeMS);
 			lastTime = currentTime;
 		}
 
@@ -46,7 +48,7 @@ int main()
 
 		background.Render(window);
 		snake.Draw(window);
-
+		
 		window.display();
 	}
 
