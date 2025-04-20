@@ -11,7 +11,7 @@ class Snake {
 public:
     Snake(Color snakeColor, int cellSize, Vector2f startPos, World& world);
     void Update();
-    void HandleInput();
+    void HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left, Keyboard::Key right);
     void HandleCollision(RenderWindow& window);
     void Grow();
     void Draw(RenderWindow& window);

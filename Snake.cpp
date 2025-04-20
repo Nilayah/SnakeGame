@@ -4,23 +4,23 @@ Snake::Snake(Color snakeColor, int cellSize, Vector2f startPos, World& world) : 
     snakeHead.setSize(Vector2f(cellSize - 2, cellSize - 2));
     snakeHead.setCenter(startPos);
     snakeHead.setFillColor(snakeColor);
-    direction = Vector2f(cellSize, 0); //go right upon loading
+    direction = Vector2f(0, cellSize); //go down upon loading
     world.AddPhysicsBody(snakeHead);
 
     lastHeadPos = startPos;
 }
 
-void Snake::HandleInput() {
-    if (Keyboard::isKeyPressed(Keyboard::Up)) {
+void Snake::HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left, Keyboard::Key right) {
+    if (Keyboard::isKeyPressed(up)) {
         direction = Vector2f(0, -cellSize);
     }
-    else if (Keyboard::isKeyPressed(Keyboard::Down)) {
+    else if (Keyboard::isKeyPressed(down)) {
         direction = Vector2f(0, cellSize);
     }
-    else if (Keyboard::isKeyPressed(Keyboard::Left)) {
+    else if (Keyboard::isKeyPressed(left)) {
         direction = Vector2f(-cellSize, 0);
     }
-    else if (Keyboard::isKeyPressed(Keyboard::Right)) {
+    else if (Keyboard::isKeyPressed(right)) {
         direction = Vector2f(cellSize, 0);
     }
 }
