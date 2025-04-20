@@ -41,17 +41,26 @@ void Snake::Update() {
     }
 }
 
-
-void Snake::HandleCollision(RenderWindow& window) {
-    snakeHead.onCollision = [&window, this](PhysicsBodyCollisionResult result) {
-        gameOver = true;
-        std::cout << "Game Over!" << std::endl;
-        world.RemovePhysicsBody(snakeHead);
-        snakeHead.setFillColor(Color::Transparent);
-        snakeHead.setCenter(Vector2f(400 + cellSize / 2, 300 + cellSize / 2));
-        window.close();
-        //work on the snake not showing up on the border when game is over
-    };
+void Snake::HandleCollision(RenderWindow& window, Fruit& fruit) {
+    snakeHead.onCollision = [&window, this, &fruit](PhysicsBodyCollisionResult result) {
+        if (result.hasCollided) {
+            // collison with fruit
+            if ((result.object1 == snakeHead && result.object2 == fruit.GetBody()) ||
+                (result.object1 == fruit.GetBody() && result.object2 == snakeHead)) {
+                Grow();
+                fruit.Respawn();
+            }
+            // collision with the snake's tail or wall (or anything else)
+            else {
+                gameOver = true;
+                std::cout << "Game Over!" << std::endl;
+                world.RemovePhysicsBody(snakeHead);
+                snakeHead.setFillColor(Color::Transparent);
+                snakeHead.setCenter(Vector2f(400 + cellSize / 2, 300 + cellSize / 2));
+                window.close();
+            }
+        }
+        };
 }
 
 void Snake::Grow() {
@@ -85,4 +94,8 @@ void Snake::Draw(RenderWindow& window) {
     for (auto& segment : snakeTail) {
         window.draw(*segment);
     }
+}
+
+PhysicsRectangle& Snake::GetHead() {
+    return snakeHead;
 }

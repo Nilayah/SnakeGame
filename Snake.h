@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <SFPhysics.h>
+#include "Fruit.h"
 
 using namespace std;
 using namespace sf;
@@ -12,9 +13,10 @@ public:
     Snake(Color snakeColor, int cellSize, Vector2f startPos, World& world);
     void Update();
     void HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left, Keyboard::Key right);
-    void HandleCollision(RenderWindow& window);
+    void HandleCollision(RenderWindow& window, Fruit& fruit);
     void Grow();
     void Draw(RenderWindow& window);
+    PhysicsRectangle& GetHead();
 
 private:
     World& world;

@@ -6,6 +6,7 @@
 #include <vector>
 #include "Background.h"
 #include "Snake.h"
+#include "Fruit.h"
 
 using namespace std;
 using namespace sf;
@@ -20,9 +21,12 @@ int main()
 
 	Background background(800, 600, cell_size, world); //initialize background
 	Snake snake1(Color::Magenta, cell_size, Vector2f(700 + cell_size / 2, 100 + cell_size / 2), world); //initialize snake 1
-	Snake snake2(Color::Green, cell_size, Vector2f(100 + cell_size / 2, 100 + cell_size / 2), world); //initialize snake 2
-	snake1.HandleCollision(window);
-	snake2.HandleCollision(window);
+	//Snake snake2(Color::Green, cell_size, Vector2f(100 + cell_size / 2, 100 + cell_size / 2), world); //initialize snake 2
+	Fruit fruit(cell_size, world); //initialize fruit
+
+
+	snake1.HandleCollision(window, fruit);
+	//snake2.HandleCollision(window, fruit);
 
 	Clock clock;
 	Time lastTime(clock.getElapsedTime());
@@ -40,21 +44,20 @@ int main()
 		}
 
 		snake1.HandleInput(Keyboard::Up, Keyboard::Down, Keyboard::Left, Keyboard::Right);
-		snake2.HandleInput(Keyboard::W, Keyboard::S, Keyboard::A, Keyboard::D);
+		//snake2.HandleInput(Keyboard::W, Keyboard::S, Keyboard::A, Keyboard::D);
 
 		if (moveClock.getElapsedTime() > moveDelay) { //snake movement clock
 			snake1.Update();
-			snake1.Grow(); //TESTING GROW IS WORKING
-			snake2.Update();
-			snake2.Grow(); //TESTING GROW IS WORKING
+			//snake2.Update();
 			moveClock.restart();
 		}
-		
+
 		window.clear(Color(0, 0, 0));
 
 		background.Render(window);
 		snake1.Draw(window);
-		snake2.Draw(window);
+		//snake2.Draw(window);
+		fruit.Draw(window);
 		
 		window.display();
 	}
