@@ -19,7 +19,7 @@ int main()
 	World world(Vector2f(0, 0));
 
 	Background background(800, 600, cell_size, world); //initialize background
-	Snake snake(cell_size, Vector2f(400 + cell_size / 2, 300 + cell_size / 2), world); //initialize snake
+	Snake snake(Color::Magenta, cell_size, Vector2f(400 + cell_size / 2, 300 + cell_size / 2), world); //initialize snake
 	snake.HandleCollision(window);
 
 	Clock clock;
@@ -41,9 +41,10 @@ int main()
 
 		if (moveClock.getElapsedTime() > moveDelay) { //snake movement clock
 			snake.Update();
+			snake.Grow(); //TESTING GROW IS WORKING
 			moveClock.restart();
 		}
-
+		
 		window.clear(Color(0, 0, 0));
 
 		background.Render(window);

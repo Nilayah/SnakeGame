@@ -9,17 +9,22 @@ using namespace sfp;
 
 class Snake {
 public:
-    Snake(int cellSize, Vector2f startPos, World& world);
+    Snake(Color snakeColor, int cellSize, Vector2f startPos, World& world);
     void Update();
     void HandleInput();
     void HandleCollision(RenderWindow& window);
+    void Grow();
     void Draw(RenderWindow& window);
 
 private:
     World& world;
     PhysicsRectangle snakeHead;
+    vector<shared_ptr<PhysicsRectangle>> snakeTail;
+    Vector2f lastHeadPos;
+    int tailLength;
     Vector2f direction;
     int cellSize;
+    Color snakeColor;
     bool gameOver;
 };
 
