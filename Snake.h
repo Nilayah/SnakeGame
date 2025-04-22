@@ -10,13 +10,17 @@ using namespace sfp;
 
 class Snake {
 public:
-    Snake(Color snakeColor, int cellSize, Vector2f startPos, World& world);
+    Snake(Color snakeColor, int score, int cellSize, Vector2f startPos, World& world);
+    void Reset(Color color, int& score, int cellSize, Vector2f startPos, World& world);
     void Update();
     void HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left, Keyboard::Key right);
     void HandleCollision(RenderWindow& window, Fruit& fruit);
     void Grow();
     void Draw(RenderWindow& window);
-    PhysicsRectangle& GetHead();
+    PhysicsRectangle& GetHead() { return snakeHead; }
+    int GetScore() const { return score; }
+    void SetScore(int num);
+    bool IsGameOver() const { return gameOver; }
 
 private:
     World& world;
@@ -28,5 +32,6 @@ private:
     int cellSize;
     Color snakeColor;
     bool gameOver;
+    int score;
 };
 

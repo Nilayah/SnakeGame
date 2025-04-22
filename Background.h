@@ -10,6 +10,7 @@ using namespace sfp;
 class Background {
 public:
     Background(int width, int height, int cellSize, World& world);
+    void AddWallsToWorld(World& world);
     void Render(RenderWindow& window);
 
 private:
