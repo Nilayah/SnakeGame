@@ -9,7 +9,15 @@ Fruit::Fruit(int cellSize, World& world) : cellSize(cellSize), world(world) {
     Respawn();
 }
 
+void Fruit::Reset(int cellSize, World& world) {
+    body.setSize(Vector2f(cellSize - 4, cellSize - 4));
+    body.setFillColor(Color::Red);
+    body.setStatic(true);
+    Respawn();
+}
+
 void Fruit::Respawn() {
+    // work on having a random fruit everytime game is played
     int cols = 800 / cellSize;
     int rows = 600 / cellSize;
 

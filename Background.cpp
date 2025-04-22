@@ -44,6 +44,13 @@ Background::Background(int width, int height, int cellSize, World& world) //wall
 	world.AddPhysicsBody(right_wall);
 }
 
+void Background::AddWallsToWorld(World& world) {
+	world.AddPhysicsBody(top_wall);
+	world.AddPhysicsBody(bottom_wall);
+	world.AddPhysicsBody(left_wall);
+	world.AddPhysicsBody(right_wall);
+}
+
 void Background::Render(sf::RenderWindow& window) { //draws the walls and background
     for (auto& tile : tiles) {
         window.draw(tile);

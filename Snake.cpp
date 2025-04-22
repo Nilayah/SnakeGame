@@ -10,6 +10,20 @@ Snake::Snake(Color snakeColor, int score, int cellSize, Vector2f startPos, World
     lastHeadPos = startPos;
 }
 
+void Snake::Reset(Color color, int& score, int cellSize, Vector2f startPos, World& world) {
+    score = 0;
+    tailLength = 0;
+    gameOver = false;
+
+    snakeHead.setSize(Vector2f(cellSize - 2, cellSize - 2));
+    snakeHead.setCenter(startPos);
+    snakeHead.setFillColor(color);
+    direction = Vector2f(0, cellSize);
+
+    world.AddPhysicsBody(snakeHead);
+    snakeTail.clear();
+}
+
 void Snake::HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left, Keyboard::Key right) {
     if (Keyboard::isKeyPressed(up)) {
         direction = Vector2f(0, -cellSize);
@@ -91,4 +105,8 @@ void Snake::Draw(RenderWindow& window) {
     for (auto& segment : snakeTail) {
         window.draw(*segment);
     }
+}
+
+void Snake::SetScore(int num) {
+    score = num;
 }
