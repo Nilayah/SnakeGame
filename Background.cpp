@@ -17,14 +17,14 @@ Background::Background(int width, int height, int cellSize, World& world) //wall
 
 	// Create the top wall
 	top_wall.setSize(Vector2f(width, wall_thickness));
-	top_wall.setCenter(Vector2f(width / 2, height));
+	top_wall.setCenter(Vector2f(width / 2, 0));
 	top_wall.setFillColor(Color(20, 20, 20));
 	top_wall.setStatic(true);
 	world.AddPhysicsBody(top_wall);
 
-	// Create the ceiling
-	bottom_wall.setSize(Vector2f(width, wall_thickness));
-	bottom_wall.setCenter(Vector2f(width / 2, 0));
+	// Create the bottom wall
+	bottom_wall.setSize(Vector2f(width, wall_thickness * 2));
+	bottom_wall.setCenter(Vector2f(width / 2, height));
 	bottom_wall.setFillColor(Color(20, 20, 20));
 	bottom_wall.setStatic(true);
 	world.AddPhysicsBody(bottom_wall);

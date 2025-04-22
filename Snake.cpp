@@ -1,6 +1,6 @@
 #include "Snake.h"
 
-Snake::Snake(Color snakeColor, int cellSize, Vector2f startPos, World& world) : snakeColor(snakeColor), cellSize(cellSize), world(world), gameOver(false), tailLength(0) {
+Snake::Snake(Color snakeColor, int score, int cellSize, Vector2f startPos, World& world) : snakeColor(snakeColor), score(score), cellSize(cellSize), world(world), gameOver(false), tailLength(0) {
     snakeHead.setSize(Vector2f(cellSize - 2, cellSize - 2));
     snakeHead.setCenter(startPos);
     snakeHead.setFillColor(snakeColor);
@@ -49,15 +49,12 @@ void Snake::HandleCollision(RenderWindow& window, Fruit& fruit) {
                 (result.object1 == fruit.GetBody() && result.object2 == snakeHead)) {
                 Grow();
                 fruit.Respawn();
+                score += 10;
             }
             // collision with the snake's tail or wall (or anything else)
             else {
                 gameOver = true;
-                std::cout << "Game Over!" << std::endl;
-                world.RemovePhysicsBody(snakeHead);
-                snakeHead.setFillColor(Color::Transparent);
-                snakeHead.setCenter(Vector2f(400 + cellSize / 2, 300 + cellSize / 2));
-                window.close();
+                //work on head showing itself on the edge wall
             }
         }
         };
@@ -94,8 +91,4 @@ void Snake::Draw(RenderWindow& window) {
     for (auto& segment : snakeTail) {
         window.draw(*segment);
     }
-}
-
-PhysicsRectangle& Snake::GetHead() {
-    return snakeHead;
 }
