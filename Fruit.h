@@ -9,6 +9,7 @@ class Fruit {
 public:
     Fruit(int cellSize, World& world);
     void Reset(int cellSize, World& world);
+    void RemoveFromWorld();
     void Respawn();
     void Draw(RenderWindow& window);
     PhysicsRectangle& GetBody();

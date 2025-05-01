@@ -16,6 +16,10 @@ void Fruit::Reset(int cellSize, World& world) {
     Respawn();
 }
 
+void Fruit::RemoveFromWorld() {
+    world.RemovePhysicsBody(body);
+}
+
 void Fruit::Respawn() {
     // work on having a random fruit everytime game is played
     int cols = 800 / cellSize;

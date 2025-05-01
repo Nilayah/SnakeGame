@@ -12,10 +12,44 @@ using namespace std;
 using namespace sf;
 using namespace sfp;
 
-enum GameState { START, PLAYING, GAME_OVER };
-GameState gameState = START;
+enum GameState { START, PLAYING, GAME_OVER, GAME_MODE, PLAYERS };
+enum GameMode { SURROUND, SNAKE1, SNAKE2 };
+GameState gameState = GAME_MODE;
+GameMode gameMode = SURROUND;
 
-void InitializeGame(RenderWindow& window, World& world, Background background, Snake& snake1, Snake& snake2, Fruit& fruit, int cellSize, int& score1, int& score2) {
+void InitializeSurroundGame(RenderWindow& window, World& world, Background background, Snake& snake1, Snake& snake2, int cellSize, int& score1, int& score2) {
+	world = World(Vector2f(0, 0)); // creates a new world
+
+	score1 = snake1.GetScore();
+	score2 = snake2.GetScore();
+
+	snake1.Reset(Color::Magenta, score1, cellSize, Vector2f(100 + cellSize / 2, 100 + cellSize / 2), world);
+	snake2.Reset(Color::Green, score2, cellSize, Vector2f(680 + cellSize / 2, 100 + cellSize / 2), world);
+
+	snake1.HandleSurroundCollision(window);
+	snake2.HandleSurroundCollision(window);
+
+	background.AddWallsToWorld(world);
+	world.AddPhysicsBody(snake1.GetHead());
+	world.AddPhysicsBody(snake2.GetHead());
+}
+
+void InitializeSnake1Game(RenderWindow& window, World& world, Background background, Snake& snake1, Fruit& fruit, int cellSize, int& score1) {
+	world = World(Vector2f(0, 0)); // creates a new world
+
+	score1 = snake1.GetScore();
+
+	snake1.Reset(Color::Magenta, score1, cellSize, Vector2f(100 + cellSize / 2, 100 + cellSize / 2), world);
+	fruit.Reset(cellSize, world);
+
+	snake1.HandleCollision(window, fruit);
+
+	background.AddWallsToWorld(world);
+	world.AddPhysicsBody(snake1.GetHead());
+	world.AddPhysicsBody(fruit.GetBody());
+}
+
+void InitializeSnake2Game(RenderWindow& window, World& world, Background background, Snake& snake1, Snake& snake2, Fruit& fruit, int cellSize, int& score1, int& score2) {
 	world = World(Vector2f(0, 0)); // creates a new world
 
 	score1 = snake1.GetScore();
@@ -36,6 +70,8 @@ void InitializeGame(RenderWindow& window, World& world, Background background, S
 
 int main()
 {
+	string winner = "";
+
 	// Fonts and Score
 	Font font;
 	if (!font.loadFromFile("arial.ttf")) {
@@ -50,18 +86,38 @@ int main()
 	startText.setString("Press SPACE to Start");
 	startText.setPosition(225, 250);
 
+	Text gameModeText;
+	gameModeText.setFont(font);
+	gameModeText.setCharacterSize(25);
+	gameModeText.setFillColor(Color::White);
+	gameModeText.setString("Please choose a game mode:\n      Press S for Surround\n        Press N for Snake");
+	gameModeText.setPosition(240, 250);
+
+	Text playersText;
+	playersText.setFont(font);
+	playersText.setCharacterSize(25);
+	playersText.setFillColor(Color::White);
+	playersText.setString("Please choose how many players:\n        Press 1 for one player\n       Press 2 for two players");
+	playersText.setPosition(220, 250);
+
 	Text gameOverText;
 	gameOverText.setFont(font);
 	gameOverText.setCharacterSize(48);
 	gameOverText.setFillColor(Color::Red);
 	gameOverText.setString("GAME OVER!");
-	gameOverText.setPosition(250, 250);
+	gameOverText.setPosition(250, 200);
+	Text winnerText;
+	winnerText.setFont(font);
+	winnerText.setCharacterSize(40);
+	winnerText.setFillColor(Color::Yellow);
+	winnerText.setString(winner + " wins!");
+	winnerText.setPosition(280, 250);
 	Text restartText;
 	restartText.setFont(font);
 	restartText.setCharacterSize(25);
 	restartText.setFillColor(Color::White);
-	restartText.setString("Press R to Restart\n  Press Q to Quit");
-	restartText.setPosition(300, 305);
+	restartText.setString("            Press R to Restart\nPress C to Change Game Mode\n              Press Q to Quit");
+	restartText.setPosition(220, 305);
 
 	int score1 = 0;
 	int score2 = 0;
@@ -107,43 +163,139 @@ int main()
 		window.clear(Color(0, 0, 0));
 		background.Render(window);
 
-		if (gameState == START) { //START GAME
-			window.draw(startText);
-			if (Keyboard::isKeyPressed(Keyboard::Space)) {
-				gameState = PLAYING;
-				InitializeGame(window, world, background, snake1, snake2, fruit, cell_size, score1, score2);
+		if (gameState == GAME_MODE) { //CHOOSING GAME MODE
+			window.draw(gameModeText);
+			if (Keyboard::isKeyPressed(Keyboard::S)) { //Surround
+				fruit.RemoveFromWorld();
+				InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
+				gameState = START;
+				gameMode = SURROUND;
+				initialized = true;
+			}
+			else if (Keyboard::isKeyPressed(Keyboard::N)) { //Snake
+				gameState = PLAYERS;
+			}
+		}
+		else if (gameState == PLAYERS) {
+			window.draw(playersText);
+
+			if (Keyboard::isKeyPressed(Keyboard::Num1)) { //Snake 1 player
+				InitializeSnake1Game(window, world, background, snake1, fruit, cell_size, score1);
+				gameState = START;
+				gameMode = SNAKE1;
+				initialized = true;
+			}
+			else if (Keyboard::isKeyPressed(Keyboard::Num2)) { //Snake 2 players
+				InitializeSnake2Game(window, world, background, snake1, snake2, fruit, cell_size, score1, score2);
+				gameState = START;
+				gameMode = SNAKE2;
 				initialized = true;
 			}
 		}
-		else if (gameState == PLAYING) { //PLAYING GAME
-			if (!initialized) {
-				InitializeGame(window, world, background, snake1, snake2, fruit, cell_size, score1, score2);
-				initialized = true;
+		else if (gameState == START) { //START GAME
+			window.draw(startText);
+			if (Keyboard::isKeyPressed(Keyboard::Space)) {
+				gameState = PLAYING;
 			}
-
+		}
+		else if (gameState == PLAYING) { //PLAYING GAME
 			snake1.HandleInput(Keyboard::W, Keyboard::S, Keyboard::A, Keyboard::D);
 			snake2.HandleInput(Keyboard::Up, Keyboard::Down, Keyboard::Left, Keyboard::Right);
 
 			if (moveClock.getElapsedTime() > moveDelay) {
 				snake1.Update();
-				snake2.Update();
+				if (gameMode == SURROUND || gameMode == SNAKE2) {
+					snake2.Update();
+				}
 				moveClock.restart();
 			}
 
-			if (snake1.IsGameOver() || snake2.IsGameOver()) { //detects game over
-				gameState = GAME_OVER;
-				initialized = false;
+			if (gameMode == SNAKE1) { //detects game over snake 1
+				if (snake1.IsGameOver()) {
+					gameState = GAME_OVER;
+					initialized = false;
+					winner = "Final Score: " + to_string(snake1.GetScore());
+				}
+			}
+			else if (gameMode == SNAKE2) { //detects game over snake 2
+				if (snake1.IsGameOver() || snake2.IsGameOver()) {
+					gameState = GAME_OVER;
+					initialized = false;
+					if (snake1.GetScore() > snake2.GetScore()) {
+						winner = "Player 1 wins!";
+					}
+					else if (snake1.GetScore() < snake2.GetScore()) {
+						winner = "Player 2 wins!";
+					}
+					else {
+						winner = "      Draw!";
+					}
+				}
+			}
+			else if (gameMode == SURROUND) { //detects game over surround
+				if (snake1.IsGameOver()) {
+					int curr_score = snake2.GetScore();
+					snake2.SetScore(curr_score + 1);
+					if (curr_score + 1 == 3) {
+						winner = "Player 2 wins!";
+						gameState = GAME_OVER;
+						initialized = false;
+					}
+					else {
+						InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
+						gameState = START;
+						gameMode = SURROUND;
+						initialized = true;
+					}
+				}
+				else if (snake2.IsGameOver()) {
+					int curr_score = snake1.GetScore();
+					snake1.SetScore(curr_score + 1);
+					if (curr_score + 1 == 3) {
+						winner = "Player 1 wins!";
+						gameState = GAME_OVER;
+						initialized = false;
+					}
+					else {
+						InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
+						gameState = START;
+						gameMode = SURROUND;
+						initialized = true;
+					}
+				}
 			}
 		}
 		else if (gameState == GAME_OVER) {
+			winnerText.setString(winner);
 			window.draw(gameOverText);
 			window.draw(restartText);
+			window.draw(winnerText);
+			fruit.RemoveFromWorld();
+			snake1.RemoveFromWorld();
+			snake2.RemoveFromWorld();
 			if (Keyboard::isKeyPressed(Keyboard::R)) { // restarts game
 				gameState = PLAYING;
 				snake1.SetScore(0);
 				snake2.SetScore(0);
-				InitializeGame(window, world, background, snake1, snake2, fruit, cell_size, score1, score2);
+
+				if (gameMode == SURROUND) {
+					fruit.RemoveFromWorld();
+					InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
+				}
+				else if (gameMode == SNAKE1) {
+					InitializeSnake1Game(window, world, background, snake1, fruit, cell_size, score1);
+				}
+				else if (gameMode == SNAKE2) {
+					InitializeSnake2Game(window, world, background, snake1, snake2, fruit, cell_size, score1, score2);
+				}
+
 				initialized = true;
+			}
+			if (Keyboard::isKeyPressed(Keyboard::C)) { // changes game mode
+				gameState = GAME_MODE;
+				snake1.SetScore(0);
+				snake2.SetScore(0);
+				window.draw(gameModeText);
 			}
 			if (Keyboard::isKeyPressed(Keyboard::Q)) { // quits game
 				window.close();
@@ -157,9 +309,13 @@ int main()
 		window.draw(scoreText1);
 		window.draw(scoreText2);
 
+		if (gameMode != SNAKE1) {
+			snake2.Draw(window);
+		}
+		if (gameMode != SURROUND) {
+			fruit.Draw(window);
+		}
 		snake1.Draw(window);
-		snake2.Draw(window);
-		fruit.Draw(window);
 		
 		window.display();
 	}
