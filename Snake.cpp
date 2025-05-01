@@ -25,6 +25,8 @@ void Snake::Reset(Color color, int& score, int cellSize, Vector2f startPos, Worl
 }
 
 void Snake::RemoveFromWorld() {
+    gameOver = false;
+
     world.RemovePhysicsBody(snakeHead);
 
     for (auto& segment : snakeTail) {

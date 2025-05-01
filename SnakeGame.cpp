@@ -212,7 +212,7 @@ int main()
 			window.draw(restartText);
 			fruit.RemoveFromWorld();
 			snake1.RemoveFromWorld();
-			snake2.RemoveFromWorld(); //fix why game ends on first player
+			snake2.RemoveFromWorld();
 			if (Keyboard::isKeyPressed(Keyboard::R)) { // restarts game
 				gameState = PLAYING;
 				snake1.SetScore(0);
