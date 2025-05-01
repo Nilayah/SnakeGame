@@ -17,7 +17,7 @@ enum GameMode { SURROUND, SNAKE1, SNAKE2 };
 GameState gameState = GAME_MODE;
 GameMode gameMode = SURROUND;
 
-void InitializeSurroundGame(RenderWindow& window, World& world, Background background, Snake& snake1, Snake& snake2, Fruit& fruit, int cellSize, int& score1, int& score2) {
+void InitializeSurroundGame(RenderWindow& window, World& world, Background background, Snake& snake1, Snake& snake2, int cellSize, int& score1, int& score2) {
 	world = World(Vector2f(0, 0)); // creates a new world
 
 	score1 = snake1.GetScore();
@@ -25,15 +25,13 @@ void InitializeSurroundGame(RenderWindow& window, World& world, Background backg
 
 	snake1.Reset(Color::Magenta, score1, cellSize, Vector2f(100 + cellSize / 2, 100 + cellSize / 2), world);
 	snake2.Reset(Color::Green, score2, cellSize, Vector2f(680 + cellSize / 2, 100 + cellSize / 2), world);
-	fruit.Reset(cellSize, world);
 
-	snake1.HandleCollision(window, fruit);
-	snake2.HandleCollision(window, fruit);
+	snake1.HandleSurroundCollision(window);
+	snake2.HandleSurroundCollision(window);
 
 	background.AddWallsToWorld(world);
 	world.AddPhysicsBody(snake1.GetHead());
 	world.AddPhysicsBody(snake2.GetHead());
-	world.AddPhysicsBody(fruit.GetBody());
 }
 
 void InitializeSnake1Game(RenderWindow& window, World& world, Background background, Snake& snake1, Fruit& fruit, int cellSize, int& score1) {
@@ -160,7 +158,8 @@ int main()
 		if (gameState == GAME_MODE) { //CHOOSING GAME MODE
 			window.draw(gameModeText);
 			if (Keyboard::isKeyPressed(Keyboard::S)) { //Surround
-				InitializeSurroundGame(window, world, background, snake1, snake2, fruit, cell_size, score1, score2);
+				fruit.RemoveFromWorld();
+				InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
 				gameState = START;
 				gameMode = SURROUND;
 				initialized = true;
@@ -211,13 +210,17 @@ int main()
 		else if (gameState == GAME_OVER) {
 			window.draw(gameOverText);
 			window.draw(restartText);
+			fruit.RemoveFromWorld();
+			snake1.RemoveFromWorld();
+			snake2.RemoveFromWorld(); //fix why game ends on first player
 			if (Keyboard::isKeyPressed(Keyboard::R)) { // restarts game
 				gameState = PLAYING;
 				snake1.SetScore(0);
 				snake2.SetScore(0);
 
 				if (gameMode == SURROUND) {
-					InitializeSurroundGame(window, world, background, snake1, snake2, fruit, cell_size, score1, score2);
+					fruit.RemoveFromWorld();
+					InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
 				}
 				else if (gameMode == SNAKE1) {
 					InitializeSnake1Game(window, world, background, snake1, fruit, cell_size, score1);
@@ -246,9 +249,13 @@ int main()
 		window.draw(scoreText1);
 		window.draw(scoreText2);
 
+		if (gameMode != SNAKE1) {
+			snake2.Draw(window);
+		}
+		if (gameMode != SURROUND) {
+			fruit.Draw(window);
+		}
 		snake1.Draw(window);
-		snake2.Draw(window);
-		fruit.Draw(window);
 		
 		window.display();
 	}

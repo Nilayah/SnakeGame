@@ -1,6 +1,6 @@
 #include "Snake.h"
 
-Snake::Snake(Color snakeColor, int score, int cellSize, Vector2f startPos, World& world) : snakeColor(snakeColor), score(score), cellSize(cellSize), world(world), gameOver(false), tailLength(0) {
+Snake::Snake(Color snakeColor, int score, int cellSize, Vector2f startPos, World& world) : snakeColor(snakeColor), score(score), cellSize(cellSize), world(world), gameOver(false), tailLength(0), constantGrowth(false) {
     snakeHead.setSize(Vector2f(cellSize - 2, cellSize - 2));
     snakeHead.setCenter(startPos);
     snakeHead.setFillColor(snakeColor);
@@ -24,6 +24,16 @@ void Snake::Reset(Color color, int& score, int cellSize, Vector2f startPos, Worl
     snakeTail.clear();
 }
 
+void Snake::RemoveFromWorld() {
+    world.RemovePhysicsBody(snakeHead);
+
+    for (auto& segment : snakeTail) {
+        world.RemovePhysicsBody(*segment);
+    }
+
+    snakeTail.clear();
+}
+
 void Snake::HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left, Keyboard::Key right) {
     if (Keyboard::isKeyPressed(up)) {
         direction = Vector2f(0, -cellSize);
@@ -42,6 +52,10 @@ void Snake::HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left
 void Snake::Update() {
     if (gameOver) return;
 
+    if (constantGrowth) {
+        Grow();
+    }
+
     lastHeadPos = snakeHead.getCenter();
     snakeHead.setCenter(snakeHead.getCenter() + direction);
 
@@ -56,6 +70,7 @@ void Snake::Update() {
 }
 
 void Snake::HandleCollision(RenderWindow& window, Fruit& fruit) {
+    constantGrowth = false;
     snakeHead.onCollision = [&window, this, &fruit](PhysicsBodyCollisionResult result) {
         if (result.hasCollided) {
             // collison with fruit
@@ -72,6 +87,15 @@ void Snake::HandleCollision(RenderWindow& window, Fruit& fruit) {
             }
         }
         };
+}
+
+void Snake::HandleSurroundCollision(RenderWindow& window) {
+    constantGrowth = true;
+    snakeHead.onCollision = [&window, this](PhysicsBodyCollisionResult result) {
+        if (result.hasCollided) {
+            gameOver = true;
+        }
+    };
 }
 
 void Snake::Grow() {

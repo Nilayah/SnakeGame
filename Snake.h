@@ -12,9 +12,11 @@ class Snake {
 public:
     Snake(Color snakeColor, int score, int cellSize, Vector2f startPos, World& world);
     void Reset(Color color, int& score, int cellSize, Vector2f startPos, World& world);
+    void RemoveFromWorld();
     void Update();
     void HandleInput(Keyboard::Key up, Keyboard::Key down, Keyboard::Key left, Keyboard::Key right);
     void HandleCollision(RenderWindow& window, Fruit& fruit);
+    void HandleSurroundCollision(RenderWindow& window);
     void Grow();
     void Draw(RenderWindow& window);
     PhysicsRectangle& GetHead() { return snakeHead; }
@@ -33,5 +35,6 @@ private:
     Color snakeColor;
     bool gameOver;
     int score;
+    bool constantGrowth;
 };
 
