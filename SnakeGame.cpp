@@ -70,6 +70,8 @@ void InitializeSnake2Game(RenderWindow& window, World& world, Background backgro
 
 int main()
 {
+	string winner = "";
+
 	// Fonts and Score
 	Font font;
 	if (!font.loadFromFile("arial.ttf")) {
@@ -103,7 +105,13 @@ int main()
 	gameOverText.setCharacterSize(48);
 	gameOverText.setFillColor(Color::Red);
 	gameOverText.setString("GAME OVER!");
-	gameOverText.setPosition(250, 250);
+	gameOverText.setPosition(250, 200);
+	Text winnerText;
+	winnerText.setFont(font);
+	winnerText.setCharacterSize(40);
+	winnerText.setFillColor(Color::Yellow);
+	winnerText.setString(winner + " wins!");
+	winnerText.setPosition(280, 250);
 	Text restartText;
 	restartText.setFont(font);
 	restartText.setCharacterSize(25);
@@ -202,14 +210,66 @@ int main()
 				moveClock.restart();
 			}
 
-			if (snake1.IsGameOver() || snake2.IsGameOver()) { //detects game over
-				gameState = GAME_OVER;
-				initialized = false;
+			if (gameMode == SNAKE1) { //detects game over snake 1
+				if (snake1.IsGameOver()) {
+					gameState = GAME_OVER;
+					initialized = false;
+					winner = "Final Score: " + to_string(snake1.GetScore());
+				}
+			}
+			else if (gameMode == SNAKE2) { //detects game over snake 2
+				if (snake1.IsGameOver() || snake2.IsGameOver()) {
+					gameState = GAME_OVER;
+					initialized = false;
+					if (snake1.GetScore() > snake2.GetScore()) {
+						winner = "Player 1 wins!";
+					}
+					else if (snake1.GetScore() < snake2.GetScore()) {
+						winner = "Player 2 wins!";
+					}
+					else {
+						winner = "      Draw!";
+					}
+				}
+			}
+			else if (gameMode == SURROUND) { //detects game over surround
+				if (snake1.IsGameOver()) {
+					int curr_score = snake2.GetScore();
+					snake2.SetScore(curr_score + 1);
+					if (curr_score + 1 == 3) {
+						winner = "Player 2 wins!";
+						gameState = GAME_OVER;
+						initialized = false;
+					}
+					else {
+						InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
+						gameState = START;
+						gameMode = SURROUND;
+						initialized = true;
+					}
+				}
+				else if (snake2.IsGameOver()) {
+					int curr_score = snake1.GetScore();
+					snake1.SetScore(curr_score + 1);
+					if (curr_score + 1 == 3) {
+						winner = "Player 1 wins!";
+						gameState = GAME_OVER;
+						initialized = false;
+					}
+					else {
+						InitializeSurroundGame(window, world, background, snake1, snake2, cell_size, score1, score2);
+						gameState = START;
+						gameMode = SURROUND;
+						initialized = true;
+					}
+				}
 			}
 		}
 		else if (gameState == GAME_OVER) {
+			winnerText.setString(winner);
 			window.draw(gameOverText);
 			window.draw(restartText);
+			window.draw(winnerText);
 			fruit.RemoveFromWorld();
 			snake1.RemoveFromWorld();
 			snake2.RemoveFromWorld();
